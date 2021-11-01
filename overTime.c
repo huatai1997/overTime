@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mytime.h"
+
 #define CURRENT_WORK_TIME_PATH    "./current_path"
 #define TIME_AT_MORNING    	  (8 * 3600 + 30 * 60)
 #define TIME_AT_NOON       	  (12 * 3600)
@@ -28,6 +30,13 @@ typedef struct {
 	int workDays;
 	workTime workTimeList[31];
 }workTimeMap;
+
+static date_t now_time;
+static int leap_year_days[12] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static int no_leap_year_days[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+static date_t wdayList[31];
+static date_t rdayList[31];
 
 static char *get_current_path(void)
 {
@@ -190,19 +199,51 @@ static int get_over_time_no_week(int timeToWork, int timeFromWork)
 	return timeForDay > 0 ? timeForDay : 0;
 }
 
-static void get_advice_for_future(int overTime, char *future)
+static void get_workingDays_and_restDays(int lastDay, int *wday, int *rday)
+{
+	int isLeapYear = is_leap_year(now_time.year);
+	int totalDays = isLeapYear ? leap_year_days[now_time.month-1] : no_leap_year_days[now_time.month-1];
+
+	int i = 0;
+	int tmpWday = 0, tmpRday = 0;
+	int month = lastDay / 100;
+	int day = lastDay % 100 + 1;
+
+	for (i = day; i <= totalDays; i++)
+	{
+		int flag = get_wday_by_date(now_time.year, month, i);
+		if (flag != 5 && flag != 0)
+		{
+			if (6 == flag) // 周六
+			{
+				rdayList[tmpRday].year = now_time.year;
+				rdayList[tmpRday].month = month;
+				rdayList[tmpRday].day = i;
+				tmpRday++;
+			}
+			else // 工作日
+			{
+				wdayList[tmpWday].year = now_time.year;
+                wdayList[tmpWday].month = month;
+                wdayList[tmpWday].day = i;
+                tmpWday++;
+			}
+		}
+	}
+
+	*wday = tmpWday;
+	*rday = tmpRday;
+}
+
+static void get_advice_for_future(int overTime, int type)
 {
 	int i = 0;
-	int len = strlen(future);
 	int workingDays = 0, restDays = 0;
 	int workingDaysStartTime = 0, restDaysStartTime = 0;
 	int workingDaysWorkTime = 0, restDaysWorkTime = 0;
 	int differenceValue = sg_i_target_overwork_time - overTime;
 
-	for (i = 0; i < len; i++)
-	{
-		future[i] == '1' ? restDays++ : workingDays++;
-	}
+	get_workingDays_and_restDays(type, &workingDays, &restDays);
 
 	printf("\tYou need \033[1;40;33m%d\033[0m hours \033[1;40;33m%d\033[0m minutes then you will have \033[1;40;33m%d\033[0m hours overtime.\n\n\tHere are some tips for you,\n\n",
 				differenceValue / 3600, differenceValue % 3600 / 60, sg_i_target_overwork_time / 3600);
@@ -211,29 +252,77 @@ static void get_advice_for_future(int overTime, char *future)
 	{
 		restDaysWorkTime = 0;
 		workingDaysWorkTime = differenceValue / workingDays;
-		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the future.\n\n", (TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) / 3600, 
+		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n", (TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) / 3600, 
 									       ((TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) % 3600) / 60);
+
+		printf("\t");
+		for (i = 0; i < workingDays; i++)
+		{
+			printf("%d-%02d-%02d  ", wdayList[i].year, wdayList[i].month, wdayList[i].day);
+			if (i != 0 && i % 4 == 0)
+			{
+				printf("\n\t");
+			}
+		}
+		printf("\n\n");
 	}
 	else if (0 == workingDays)
 	{
 		workingDaysWorkTime = 0;
 		restDaysWorkTime = differenceValue / restDays;
-		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the future.\n\n",
+		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
 			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) / 3600) : ((TIME_AT_MORNING + restDaysWorkTime) / 3600),
-			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60));    }
+			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60));
+
+		printf("\t");
+		for (i = 0; i < restDays; i++)
+		{
+			printf("%d-%02d-%02d  ", rdayList[i].year, rdayList[i].month, rdayList[i].day);
+			if (i != 0 && i % 4 == 0)
+			{
+				printf("\n\t");
+			}
+		}
+		printf("\n\n");
+	}
 	else
 	{
 		restDaysWorkTime = (differenceValue * 9) / (5 * workingDays + 9 * restDays);
 		workingDaysWorkTime = (restDaysWorkTime * 5) / 9;
-		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m on working days, work form \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m on weekend\n\n",
-			(TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) / 3600, ((TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) % 3600) / 60,
+		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
+			(TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) / 3600, ((TIME_AT_DELAY_WORK_NIGHT + workingDaysWorkTime) % 3600) / 60);
+
+		printf("\t");
+		for (i = 0; i < workingDays; i++)
+		{
+			printf("%d-%02d-%02d  ", wdayList[i].year, wdayList[i].month, wdayList[i].day);
+			if (i != 0 && i % 4 == 0)
+			{
+				printf("\n\t");
+			}
+		}
+		printf("\n");
+
+		printf("\twork form \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
 			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) / 3600) : ((TIME_AT_MORNING + restDaysWorkTime) / 3600),
 			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60));
+
+		printf("\t");
+		for (i = 0; i < restDays; i++)
+		{
+			printf("%d-%02d-%02d  ", rdayList[i].year, rdayList[i].month, rdayList[i].day);
+			if (i != 0 && i % 4 == 0)
+			{
+				printf("\n\t");
+			}
+		}
+		printf("\n\n");
+
 	}
 	printf("\tBest wish!\n\n");
 }
 
-static int get_over_time_from_map(workTimeMap *wtl, char *future)
+static int get_over_time_from_map(workTimeMap *wtl, int future)
 {
 	if (NULL == wtl)
 	{
@@ -266,7 +355,7 @@ static int get_over_time_from_map(workTimeMap *wtl, char *future)
 		printf("\tYou had paided leave \033[1;40;33m%d\033[0m hours this month!\n\n", sg_i_paid_leave_time / 3600);
 	}
 
-	if (future != NULL)
+	if (future != -1)
 	{
 		overTimeOfMonth < sg_i_target_overwork_time ? get_advice_for_future(overTimeOfMonth, future)
 					:printf("\tYou had worked more than \033[1;40;33m%d\033[0m hours of overtime this month!\n\n", sg_i_target_overwork_time / 3600);
@@ -275,10 +364,12 @@ static int get_over_time_from_map(workTimeMap *wtl, char *future)
 	return TRUE;
 }
 
-static void get_over_time(char *future, char *file)
+static void get_over_time(int future, char *file)
 {
 	workTimeMap wtl;
 	memset(&wtl, 0, sizeof(workTimeMap));
+
+	get_the_current_date(&now_time);
 
 	if (FALSE == get_work_time_from_file(&wtl, file))
 	{
@@ -308,17 +399,17 @@ int main(int argc, char *argv[])
 			sg_i_paid_leave_time = atoi(argv[2]) * 60 * 60;
 		}
 
-		get_over_time(NULL, NULL);
+		get_over_time(-1, NULL);
 	}
 	else if (0 == strcmp(argv[1], "get_advice") && argc != 2)
 	{
 		sg_i_target_overwork_time = argv[3] != NULL ? atoi(argv[3]) * 60 * 60 : 60 * 60 * 60;
 
-        get_over_time(argv[2], NULL);
+        get_over_time(atoi(argv[2]), NULL);
 	}
 	else if (0 == strcmp(argv[1], "set_file") && 3 == argc)
 	{
-		get_over_time(NULL, argv[2]);
+		get_over_time(-1, argv[2]);
 	}
 	else
 	{
