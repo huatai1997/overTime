@@ -20,12 +20,12 @@ eg. :
 	./main get_time / ./main get_time 8
 
 3. 获取加班计划
-	./main get_advice $workDayList ($targetTime)
+	./main get_advice $lastWorkDay ($targetTime)
 
-	$workDayList : 未来需要上班的日子列表,0表示工作日，1表示周末
+	$lastWorkDay : 文件最后一行对应的日期, 格式 %02d%02d
 	$targetTime : 目的加班时长，非必要参数，单位h，默认60h
 
 eg. :
-	./main get_advice 0001001  表示本月还有7天要上班，其中5天工作日，2天周末，目的加班时长60h
+	./main get_advice 1101  表示文件记录到11月1日的数据，目的加班时长60h
 
-	./main get_advice 0001001 40 表示本月还有7天要上班，其中5天工作日，2天周末，目的加班时长40h
+	./main get_advice 1101 40 表示文件记录到11月1日的数据，目的加班时长40h

@@ -384,14 +384,19 @@ static void get_over_time(int future, char *file)
 	}
 }
 
-static void usage(int argc, char *argv[])
+static void usage(void)
 {
-	printf("usage : \n\t%s get_time (paid time)\n\t%s get_advice $follow\n\t%s set_file $path\n\n", argv[0], argv[0], argv[0]);
-	printf("example : \n\t%s get_time (8)\n\t%s get_advice 00010000011\n\t%s set_file ./workTime/work_time_list\n", argv[0], argv[0], argv[0]);
+	int ret = system("cat ./readMe");
+	exit(-1);
 }
 
 int main(int argc, char *argv[])
 {
+	if (argc > 4 || argc < 2)
+	{
+		usage();
+	}
+
 	if (0 == strcmp(argv[1], "get_time") && argc != 4)
 	{
 		if (argv[2] != NULL)
@@ -413,7 +418,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		usage(argc, argv);
+		usage();
 	}
 
 	return 0;
