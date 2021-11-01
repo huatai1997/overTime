@@ -1,0 +1,31 @@
+使用方法：
+
+1. 设置记录上下班时间的文件路径
+	./main set_file $path
+
+	$path : 记录上下班时间的文件路径
+
+	文件格式: 上班时间,下班时间,是否周末
+	例子: 083000,183000,1
+
+eg. :
+	./main set_file ./worktime/worktimelist10
+
+2. 获取已加班时长
+	./main get_time ($paid_time)
+
+	$paid_time : 调休时长，单位h，非必要参数
+
+eg. :
+	./main get_time / ./main get_time 8
+
+3. 获取加班计划
+	./main get_advice $workDayList ($targetTime)
+
+	$workDayList : 未来需要上班的日子列表,0表示工作日，1表示周末
+	$targetTime : 目的加班时长，非必要参数，单位h，默认60h
+
+eg. :
+	./main get_advice 0001001  表示本月还有7天要上班，其中5天工作日，2天周末，目的加班时长60h
+
+	./main get_advice 0001001 40 表示本月还有7天要上班，其中5天工作日，2天周末，目的加班时长40h
