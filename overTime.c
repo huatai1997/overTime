@@ -129,6 +129,11 @@ static int get_work_time_from_file(workTimeMap *wtl, char *file)
 		tfwSeconds = tfw % 100;
 		tfwMinutes = tfw / 100 % 100;
 		tfwHours   = tfw / 10000;
+
+		if (tfwHours >= 0 && tfwHours <= 6)
+		{
+			tfwHours += 24;
+		}
 		
 		wtl->workTimeList[index].isWeek         = isWeekend;
 		wtl->workTimeList[index].timeToWork     = ttwHours * 3600 + ttwMinutes * 60 + ttwSeconds;
