@@ -275,9 +275,10 @@ static void get_advice_for_future(int overTime, int type)
 	{
 		workingDaysWorkTime = 0;
 		restDaysWorkTime = differenceValue / restDays;
-		printf("\tYou can work from \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
+		printf("\twork form \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m or \033[1;40;33m13:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
 			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) / 3600) : ((TIME_AT_MORNING + restDaysWorkTime) / 3600),
-			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60));
+			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60),
+			((TIME_AT_AFTERNOON + restDaysWorkTime) / 3600), (TIME_AT_AFTERNOON + restDaysWorkTime) % 3600 / 60);
 
 		printf("\t");
 		for (i = 0; i < restDays; i++)
@@ -308,9 +309,10 @@ static void get_advice_for_future(int overTime, int type)
 		}
 		printf("\n");
 
-		printf("\twork form \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
+		printf("\twork form \033[1;40;33m08:30\033[0m to \033[1;40;33m%02d:%02d\033[0m or \033[1;40;33m13:30\033[0m to \033[1;40;33m%02d:%02d\033[0m in the following days:\n\n",
 			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) / 3600) : ((TIME_AT_MORNING + restDaysWorkTime) / 3600),
-			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60));
+			(TIME_AT_MORNING + restDaysWorkTime) > TIME_AT_NOON ? ((TIME_AT_MORNING + restDaysWorkTime + (3600 + 60 * 30)) % 3600 / 60) : ((TIME_AT_MORNING + restDaysWorkTime) % 3600 / 60),
+			((TIME_AT_AFTERNOON + restDaysWorkTime) / 3600), (TIME_AT_AFTERNOON + restDaysWorkTime) % 3600 / 60);
 
 		printf("\t");
 		for (i = 0; i < restDays; i++)
