@@ -1,0 +1,22 @@
+==================overTime 2.0=========================
+
+How to get json date?
+
+1. 按F12, 选中Network.
+2. 点击考勤日历.
+3. 点击getHrmKQMonthReportInfo -> Response, copy all to a file.
+
+How to build?
+
+1. 进入工程主目录
+2. make
+
+How to clean?
+
+1. 进入工程主目录
+2. make clean
+
+How to get overtime?
+
+1. build the proc
+2. ./getOverTime -f $path(记录考勤数据的json数据)
