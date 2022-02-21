@@ -102,7 +102,7 @@ int get_over_time_from_map(mouthInfo *map)
 			int tmp = map->dayInfoList[index].isWork ? get_over_time_is_work(map->dayInfoList[index].timeToWork, map->dayInfoList[index].timeFromWork) :
 													   get_over_time_no_work(map->dayInfoList[index].timeToWork, map->dayInfoList[index].timeFromWork);
 
-			printf("%s : %02d:%02d:%02d -> %02d:%02d:%02d overtime : \033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m ",
+			printf("%s : 打卡时间: %02d:%02d:%02d -> %02d:%02d:%02d 加班时长: \033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m ",
 																				map->dayInfoList[index].date,
 																				map->dayInfoList[index].timeToWork / 3600,
 																				(map->dayInfoList[index].timeToWork % 3600) / 60,
@@ -115,7 +115,7 @@ int get_over_time_from_map(mouthInfo *map)
 																				tmp % 60);
 			if (map->dayInfoList[index].workflow != -1)
 			{
-				printf("paid leave : \033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m\n",
+				printf("调休时长: \033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m:\033[1;40;33m%02d\033[0m\n",
 														map->dayInfoList[index].workflow / 3600,
 														(map->dayInfoList[index].workflow % 3600) / 60,
 														map->dayInfoList[index].workflow % 60);
@@ -124,7 +124,7 @@ int get_over_time_from_map(mouthInfo *map)
 			}
 			else
 			{
-				printf("paid leave : 00:00:00\n");
+				printf("调休时长: 0\n");
 			}
 
 			totalOverTime += tmp;
