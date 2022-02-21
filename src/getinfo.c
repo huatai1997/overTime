@@ -96,7 +96,7 @@ static void parsing_json(json_t *root, mouthInfo *map)
 							else
 							{
 								sscanf(signTime->child->text, "%d:%d:%d", &hour, &min, &sec);
-								if (hour >= 0 && hour <= 8)
+								if (hour >= 0 && hour < 8)
 								{
 									hour += 24;
 								}
